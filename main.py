@@ -6,13 +6,18 @@ from PIL import Image
 rows = 0
 cols = 0
 my_list = []
-min_max_list = []
+_min = 0
+_max = 0
 name_file = "data.txt"
 
 
 # вычисления максимального и минимального значения в строке
 def straight_min_max(l):
-    return min(l), max(l)
+    global _min, _max
+    if min(l) < _min:
+        _min = min(l)
+    if max(l) > _max:
+        _max = max(l)
 
 
 # чтение файла
@@ -27,7 +32,7 @@ def ReadFile(NameFIle: str):
             if cols < len(temp):
                 cols = len(temp)
             rows = rows + 1
-            min_max_list.append(straight_min_max(temp))
+            straight_min_max(temp)
 
 
 # каст значений
@@ -64,7 +69,7 @@ def findByFormulaLogarithmic(data: list, cols_list, rows_list):
     # new_data = [[0.0] * cols_list] * rows_list
     for row in range(rows_list):
         for col in range(cols_list):
-            new_data[row][col] = logarithmicFilter(data[row][col], min_max_list[row][1], 10)
+            new_data[row][col] = logarithmicFilter(data[row][col], _max, 10)
     return new_data
 
 
@@ -84,7 +89,7 @@ def draw_image(data, name: str, cols_list: int, rows_list: int, light: int = 1, 
     for row in range(rows_list):
         for col in range(cols_list):
             c = data[row][col]
-            c = light * remap(c, min_max_list[row][0], min_max_list[row][1], 0, 255)
+            c = light * remap(c, _min, _max, 0, 255)
             image.putpixel((col, row), (round(c * R), round(c * G), round(c * B), 255))
 
     image.save(name)
@@ -92,17 +97,19 @@ def draw_image(data, name: str, cols_list: int, rows_list: int, light: int = 1, 
 
 def main():
     ReadFile(name_file)
-    # a = middleLineFilter(my_list, cols, rows)
+    global _max, _min
+    _max = _max / 10
+    a = middleLineFilter(my_list, cols, rows)
     b = findByFormulaLogarithmic(my_list, cols, rows)
-    c = findByFormulaBottomScatterCoefficient(b, cols, rows)
-    # for i in range(0, rows):
-    #     for j in range(0, cols):
-    #         if a[j] == 0:
-    #             continue
-    #         my_list[i][j] = my_list[i][j] / a[j]
-    # draw_image(my_list, 'img1.png', cols, rows, light=700)
-    # draw_image(b, 'img2.png', cols, rows, light=8)
-    draw_image(c, 'img3.png', cols, rows)
+    # c = findByFormulaBottomScatterCoefficient(b, cols, rows)
+    for i in range(0, rows):
+        for j in range(0, cols):
+            if a[j] == 0:
+                continue
+            my_list[i][j] = my_list[i][j] / a[j]
+    draw_image(my_list, 'img1.png', cols, rows, light=900, G=0)
+    draw_image(b, 'img2.png', cols, rows, light=10, G=0)
+    # draw_image(c, 'img3.png', cols, rows)
 
 
 # Press the green button in the gutter to run the script.
