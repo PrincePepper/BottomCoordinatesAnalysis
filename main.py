@@ -6,9 +6,9 @@ from PIL import Image
 rows = 0
 cols = 0
 my_list = []
-_min = 0
+_min = 10000000
 _max = 0
-name_file = "data.txt"
+name_file = "data_2000-2100.txt"
 
 
 # вычисления максимального и минимального значения в строке
@@ -21,13 +21,15 @@ def straight_min_max(l):
 
 
 # чтение файла
-def ReadFile(NameFIle: str):
+def ReadFile(NameFIle: str, start: int = -1):
     global cols, rows
     with open(NameFIle, "r") as file:
         # итерация по строкам
         for line in file:
             temp = line.split()
             temp = list(map(float, temp))
+            if start != -1:
+                del temp[0:start]
             my_list.append(temp)
             if cols < len(temp):
                 cols = len(temp)
@@ -96,9 +98,9 @@ def draw_image(data, name: str, cols_list: int, rows_list: int, light: int = 1, 
 
 
 def main():
-    ReadFile(name_file)
-    global _max, _min
-    _max = _max / 10
+    global _max, _min, cols, rows
+    ReadFile(name_file, start=1500)
+    _max = _max
     a = middleLineFilter(my_list, cols, rows)
     b = findByFormulaLogarithmic(my_list, cols, rows)
     # c = findByFormulaBottomScatterCoefficient(b, cols, rows)
@@ -107,8 +109,8 @@ def main():
             if a[j] == 0:
                 continue
             my_list[i][j] = my_list[i][j] / a[j]
-    draw_image(my_list, 'img1.png', cols, rows, light=900, G=0)
-    draw_image(b, 'img2.png', cols, rows, light=10, G=0)
+    draw_image(my_list, 'img1.png', cols, rows, light=2000, G=0.5)
+    draw_image(b, 'img2.png', cols, rows, light=70, G=0.5)
     # draw_image(c, 'img3.png', cols, rows)
 
 
